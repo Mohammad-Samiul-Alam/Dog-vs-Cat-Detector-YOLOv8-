@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dog vs Cat Detector (YOLOv8) — ডকুমেন্টেশন</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6f7fb;--sf:#fff;--tx:#1a2033;--mu:#5b657a;--bd:#dfe3ed;--ac:#2f6fed;--acb:#e7efff;--g:#13794b;--gb:#e1f5ea;--o:#a45b00;--ob:#fff0d9;--p:#7a3fd1;--pb:#f0e6ff;--code:#eef1f7;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f121a;--sf:#171b26;--tx:#e8ecf5;--mu:#9aa5bd;--bd:#2a3042;--ac:#6b9bff;--acb:#1c2a4a;--g:#4cd08f;--gb:#12302443;--o:#ffb04d;--ob:#3a2a10;--p:#b98cff;--pb:#2b2142;--code:#1f2433;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f121a;--sf:#171b26;--tx:#e8ecf5;--mu:#9aa5bd;--bd:#2a3042;--ac:#6b9bff;--acb:#1c2a4a;--g:#4cd08f;--gb:#123024;--o:#ffb04d;--ob:#3a2a10;--p:#b98cff;--pb:#2b2142;--code:#1f2433;color-scheme:dark}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 70px);scroll-behavior:smooth}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.7 "Noto Sans Bengali",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+body.bn .en,body.en .bn{display:none}
+.side{position:fixed;left:0;top:0;bottom:0;width:260px;background:var(--sf);border-right:1px solid var(--bd);padding:calc(env(safe-area-inset-top,0px) + 18px) 14px 18px;overflow-y:auto;z-index:30;transition:transform .25s}
+.brand{font-weight:700;font-size:15px;line-height:1.4;margin:0 6px 14px}
+.brand small{display:block;color:var(--mu);font-weight:400;font-size:12px}
+.side a{display:flex;gap:10px;align-items:center;padding:9px 12px;border-radius:10px;color:var(--mu);text-decoration:none;font-size:14.5px}
+.side a b{width:22px;height:22px;border-radius:7px;background:var(--code);display:grid;place-items:center;font-size:12px;color:var(--mu)}
+.side a:hover{background:var(--code)}
+.side a.on{background:var(--acb);color:var(--ac);font-weight:600}
+.side a.on b{background:var(--ac);color:#fff}
+.main{margin-left:260px}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;display:flex;align-items:center;gap:10px;padding:10px 22px;background:var(--bg);border-bottom:1px solid var(--bd)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:25}
+.top h1{font-size:16px;margin:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.burger{display:none;border:1px solid var(--bd);background:var(--sf);color:var(--tx);border-radius:10px;width:38px;height:38px;font-size:18px;cursor:pointer}
+.lang{display:flex;border:1px solid var(--bd);border-radius:999px;overflow:hidden;background:var(--sf)}
+.lang button{border:0;background:none;color:var(--mu);padding:7px 14px;font:600 13px inherit;font-family:inherit;cursor:pointer}
+.lang button.on{background:var(--ac);color:#fff}
+.wrap{max-width:900px;margin:0 auto;padding:24px 22px 60px}
+section{margin-bottom:44px}
+h2{font-size:23px;margin:0 0 14px;display:flex;align-items:center;gap:10px}
+h2 i{font-style:normal;background:var(--ac);color:#fff;border-radius:9px;min-width:30px;height:30px;display:grid;place-items:center;font-size:14px}
+p{margin:0 0 12px}
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:16px 18px;margin-bottom:14px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.chip{background:var(--acb);color:var(--ac);border-radius:999px;padding:4px 13px;font-size:13.5px;font-weight:600}
+.io{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.io>div{border-radius:12px;padding:12px 14px}
+.io .i{background:var(--ob);color:var(--tx)}.io .o{background:var(--gb)}
+.io h4,.step h4{margin:0 0 4px;font-size:12.5px;letter-spacing:.04em;text-transform:uppercase}
+.io .i h4{color:var(--o)}.io .o h4{color:var(--g)}
+.tree{background:var(--code);border-radius:12px;padding:14px 16px;font:13.5px/1.75 ui-monospace,Menlo,Consolas,monospace;white-space:pre;overflow-x:auto}
+.fill{color:var(--o);font-weight:700}.auto{color:var(--g);font-weight:700}
+.flow{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.node{border-radius:12px;padding:10px 12px;text-decoration:none;color:var(--tx);border:1px solid var(--bd);background:var(--sf);position:relative;font-size:14px;line-height:1.45}
+.node:hover{border-color:var(--ac)}
+.node b{display:block;font-size:12px;color:var(--mu)}
+.node.s1{border-top:4px solid var(--ac)}.node.s2{border-top:4px solid var(--o)}.node.s3{border-top:4px solid var(--p)}.node.s4{border-top:4px solid var(--g)}
+.node:not(:last-child)::after{content:"→";position:absolute;right:-9px;top:50%;transform:translateY(-50%);color:var(--mu);font-size:14px;background:var(--bg);z-index:2;line-height:1}
+.node:nth-child(4)::after{display:none}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--mu);margin-top:10px}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;background:var(--c)}
+.step{border-left:4px solid var(--ac);scroll-margin-top:80px}
+.step h3{margin:0 0 10px;font-size:17px}
+.step .pr{margin:10px 0 12px;color:var(--tx)}
+.bar{display:flex;height:42px;border-radius:10px;overflow:hidden;font-size:13.5px;font-weight:600;color:#fff}
+.bar div{display:grid;place-items:center;text-align:center;padding:0 6px}
+code{background:var(--code);border-radius:6px;padding:1px 6px;font:13px ui-monospace,Menlo,Consolas,monospace;word-break:break-word}
+ul{margin:6px 0 0;padding-left:20px}li{margin-bottom:5px}
+.warn{background:var(--ob);border-left:4px solid var(--o)}
+.ok{background:var(--gb);border-left:4px solid var(--g)}
+table{width:100%;border-collapse:collapse;font-size:14.5px}
+td,th{border-bottom:1px solid var(--bd);padding:8px 10px;text-align:left;vertical-align:top}
+th{color:var(--mu);font-size:12.5px;text-transform:uppercase}
+.scr{overflow-x:auto}
+.ov{display:none}
+@media (max-width:880px){
+.side{transform:translateX(-102%);box-shadow:0 0 30px #0006}.side.open{transform:none}
+.ov.show{display:block;position:fixed;inset:0;background:#0007;z-index:29}
+.main{margin-left:0}.burger{display:block}.top{padding:10px 14px}
+.flow{grid-template-columns:repeat(2,1fr)}.node:nth-child(4)::after{display:block}.node:nth-child(2n)::after{display:none}
+.io{grid-template-columns:1fr}.wrap{padding:18px 14px 50px}h2{font-size:20px}}
+</style>
+</head>
+<body class="bn">
+<div class="ov" id="ov"></div>
+<nav class="side" id="side"><div class="brand">Dog vs Cat Detector<small>Train_Dog_Cat_Final.ipynb</small></div><div id="nav"></div></nav>
+<div class="main">
+<header class="top"><button class="burger" id="bg" aria-label="menu">☰</button><h1><span class="bn">ডগ vs ক্যাট ডিটেক্টর — ডকুমেন্টেশন</span><span class="en">Dog vs Cat Detector — Documentation</span></h1>
+<div class="lang"><button data-l="bn" class="on">বাংলা</button><button data-l="en">English</button></div></header>
+<div class="wrap" id="app"></div>
+</div>
+<script>
+const T=(b,e)=>`<span class="bn">${b}</span><span class="en">${e}</span>`;
+const S=[["overview","ওভারভিউ","Overview"],["folders","ফোল্ডার কাঠামো","Folder structure"],["flow","প্রসেস ফ্লো","Process flow"],["cells","সেল-বাই-সেল","Cell by cell"],["split","ডেটা ভাগ","Data split"],["outputs","আউটপুট ফাইল","Output files"],["trouble","সমস্যা সমাধান","Troubleshooting"]];
+const C=[
+["ইনস্টল","Install","s1",["ইন্টারনেট সংযোগ ও Colab GPU (T4) রানটাইম","Internet and a Colab GPU (T4) runtime"],["ultralytics, opencv-python, matplotlib ইনস্টল হয়।","Installs ultralytics, opencv-python and matplotlib."],["ইনস্টল লগ; লাইব্রেরি ব্যবহারের জন্য প্রস্তুত।","Install log; libraries ready."]],
+["ইমপোর্ট","Imports","s1",["কিছু নেই","None"],["YOLO, cv2, os, glob, shutil, random, collections ও matplotlib ইমপোর্ট করে।","Imports YOLO, cv2, os, glob, shutil, random, collections and matplotlib."],["দৃশ্যমান আউটপুট নেই।","No visible output."]],
+["Google Drive মাউন্ট","Mount Google Drive","s1",["Google অ্যাকাউন্টে অনুমতি দেওয়া","Google account permission"],["Drive কে <code>/content/drive</code> এ মাউন্ট করে।","Mounts Drive at <code>/content/drive</code>."],["Drive মাউন্ট হয়, <code>dog_cat_dataset</code> পড়া যায়।","Drive is mounted and <code>dog_cat_dataset</code> becomes readable."]],
+["লেবেল তৈরি (Pseudo-labeling)","Create labels (pseudo-labeling)","s2",["<code>train/images</code> ও <code>test/images</code> এর ছবি (.jpg .jpeg .png); ফাইলের নামে cat বা dog থাকতে হবে।","Images in <code>train/images</code> and <code>test/images</code> (.jpg .jpeg .png); filenames must contain cat or dog."],["yolov8x (COCO: cat=15, dog=16) প্রতি ছবিতে সবচেয়ে নিশ্চিত বক্সটি নেয়। নামে শুধু cat থাকলে ক্লাস 0, শুধু dog থাকলে 1; নাম অস্পষ্ট হলে ডিটেক্টরের ক্লাস। আগে থেকে লেবেল থাকলে বা কিছু শনাক্ত না হলে ছবিটি বাদ যায়।","yolov8x (COCO: cat=15, dog=16) takes the most confident box per image. A name with only cat gives class 0, only dog gives 1; an unclear name uses the detector’s class. Images that already have a label, or where nothing is detected, are skipped."],["প্রতি ছবির জন্য <code>labels/</code> এ একটি .txt (YOLO ফরম্যাট) এবং প্রিন্ট: <code>train labels: N | cat(0): … | dog(1): …</code>","One .txt per image in <code>labels/</code> (YOLO format) and a printout: <code>train labels: N | cat(0): … | dog(1): …</code>"]],
+["ডেটা প্রস্তুত + data.yaml","Prepare data + data.yaml","s2",["Drive এর <code>dog_cat</code> ফোল্ডার ও আগের ধাপের লেবেল","The Drive <code>dog_cat</code> folder with the labels from Cell 4"],["ফোল্ডারটি দ্রুত পড়ার জন্য <code>/content/dog_cat</code> এ কপি করে। train থেকে এলোমেলো ১৫% ছবি ও লেবেল <code>valid</code> এ সরায় (seed 42)। <code>data.yaml</code> লেখে: nc: 2, names: cat, dog।","Copies the folder to <code>/content/dog_cat</code> for faster reads. Moves a random 15% of train images and labels to <code>valid</code> (seed 42). Writes <code>data.yaml</code>: nc: 2, names: cat, dog."],["<code>data.yaml file created successfully</code> এবং <code>train labels: N</code> (অবশ্যই ০ এর বেশি)।","<code>data.yaml file created successfully</code> and <code>train labels: N</code> (must be above 0)."]],
+["ট্রেনিং","Train","s3",["<code>/content/dog_cat/data.yaml</code>","<code>/content/dog_cat/data.yaml</code>"],["<code>yolov8n.pt</code> থেকে শুরু; epochs=50, imgsz=640, batch=8, name=dog_cat_detector।","Starts from <code>yolov8n.pt</code>; epochs=50, imgsz=640, batch=8, name=dog_cat_detector."],["<code>/content/runs/detect/dog_cat_detector*/</code> এ best.pt, last.pt, results.png, confusion matrix; শেষে <code>Results saved to …</code>","<code>/content/runs/detect/dog_cat_detector*/</code> with best.pt, last.pt, results.png, confusion matrix; ends with <code>Results saved to …</code>"]],
+["মডেল লোড ও Drive এ সেভ","Load model and save to Drive","s3",["Cell 6 এর ওয়েট ফাইল","Weights from Cell 6"],["<code>/content/runs</code> এ best.pt খোঁজে, না পেলে last.pt, তাও না পেলে Drive এর best.pt। সবচেয়ে নতুনটি <code>trained_model</code> এ লোড করে এবং Drive এ কপি করে।","Searches <code>/content/runs</code> for best.pt, then last.pt, then the Drive copy of best.pt. Loads the newest one as <code>trained_model</code> and copies it to Drive."],["<code>using: …</code> এবং <code>saved to Drive: /content/drive/MyDrive/best.pt</code>","<code>using: …</code> and <code>saved to Drive: /content/drive/MyDrive/best.pt</code>"]],
+["ডিটেকশন দেখা","Show detections","s4",["<code>trained_model</code>; <code>test/images</code> (না থাকলে valid, কম হলে train)","<code>trained_model</code>; <code>test/images</code> (else valid, plus train if short)"],["সর্বোচ্চ ১০টি ছবিতে conf=0.25 দিয়ে ডিটেকশন চালায়।","Runs detection with conf=0.25 on at most 10 images."],["বক্সসহ ছবি (cat/dog ও কনফিডেন্স), শিরোনাম: <code>Detection Result: ফাইলের নাম</code>","Annotated images (cat/dog and confidence), titled <code>Detection Result: filename</code>"]]
+];
+const H=(i,n,b,e)=>`<h2><i>${n}</i>${T(b,e)}</h2>`;
+let h="";
+h+=`<section id="overview">${H(0,1,"ওভারভিউ","Overview")}
+<div class="card"><p>${T("এই নোটবুক <b>YOLOv8n</b> দিয়ে কুকুর ও বিড়াল শনাক্ত করার (object detection) একটি মডেল ট্রেন করে। আলাদা করে লেবেল করতে হয় না: বড় মডেল <b>yolov8x</b> নিজেই বক্স তৈরি করে (pseudo-labeling), আর ক্লাস নির্ধারিত হয় ফাইলের নাম থেকে।","This notebook trains a <b>YOLOv8n</b> object detector for dogs and cats. You do not label by hand: the larger <b>yolov8x</b> model draws the boxes (pseudo-labeling) and the class comes from the filename.")}</p>
+<div class="chips"><span class="chip">YOLOv8n</span><span class="chip">50 epochs</span><span class="chip">640 px</span><span class="chip">batch 8</span><span class="chip">conf 0.25</span><span class="chip">2 ${T("ক্লাস","classes")}: cat, dog</span><span class="chip">Colab T4</span></div>
+<div class="io"><div class="i"><h4>${T("ইনপুট","Input")}</h4>${T("Drive এ cat/dog ছবি (train ও test)","Cat/dog photos on Drive (train and test)")}</div><div class="o"><h4>${T("আউটপুট","Output")}</h4>${T("ট্রেন করা <code>best.pt</code> ও বক্সসহ ডিটেকশন ছবি","Trained <code>best.pt</code> and annotated detection images")}</div></div></div></section>`;
+h+=`<section id="folders">${H(0,2,"ফোল্ডার কাঠামো (আগে এটি সাজান)","Folder structure (set this up first)")}
+<p>${T("রান করার আগে Google Drive এ নিচের কাঠামো বানিয়ে শুধু <span class=fill>images</span> ফোল্ডার দুটিতে ছবি রাখুন। <span class=auto>labels</span> ও <code>best.pt</code> নোটবুক নিজেই বানাবে।","Before running, create this layout in Google Drive and put photos only in the two <span class=fill>images</span> folders. The notebook creates <span class=auto>labels</span> and <code>best.pt</code> itself.")}</p>
+<div class="tree">MyDrive/
+├─ dog_cat_dataset/
+│  └─ dog_cat/
+│     ├─ train/
+│     │  ├─ images/   <span class="fill">◄ ${T("আপনি ছবি দিন","YOU fill: cat*.jpg, dog*.jpg")}</span>
+│     │  └─ labels/   <span class="auto">◄ ${T("অটো (Cell 4)","auto (Cell 4)")}</span>
+│     └─ test/
+│        ├─ images/   <span class="fill">◄ ${T("আপনি ছবি দিন","YOU fill")}</span>
+│        └─ labels/   <span class="auto">◄ ${T("অটো (Cell 4)","auto (Cell 4)")}</span>
+└─ best.pt            <span class="auto">◄ ${T("অটো (Cell 7)","auto (Cell 7)")}</span></div>
+<div class="card warn" style="margin-top:14px"><b>${T("নিয়ম","Rules")}</b><ul>
+<li>${T("ফাইলের নামে <code>cat</code> বা <code>dog</code> থাকতে হবে, যেমন <code>cat.001.jpg</code>, <code>dog_12.png</code>। এটিই ক্লাস ঠিক করে।","Filenames must contain <code>cat</code> or <code>dog</code>, e.g. <code>cat.001.jpg</code>, <code>dog_12.png</code>. This decides the class.")}</li>
+<li>${T("একই নামে cat ও dog দুটোই রাখবেন না (তখন ডিটেক্টরের অনুমান ব্যবহার হয়)।","Do not put both cat and dog in one name (the detector’s guess is used instead).")}</li>
+<li>${T("শুধু .jpg, .jpeg, .png কাজ করে।","Only .jpg, .jpeg and .png are used.")}</li>
+<li>${T("ছবি সরাসরি <code>images/</code> এ রাখুন। <code>train/cat/</code> ও <code>train/dog/</code> ধরনের সাবফোল্ডার এই নোটবুকে চলবে না।","Put photos directly in <code>images/</code>. Subfolders like <code>train/cat/</code> and <code>train/dog/</code> do not work in this notebook.")}</li>
+<li>${T("পাথর বদলাতে হলে Cell 4 ও Cell 5 এর <code>BASE</code> একই রাখুন।","If you change the path, keep <code>BASE</code> the same in Cell 4 and Cell 5.")}</li></ul></div></section>`;
+h+=`<section id="flow">${H(0,3,"প্রসেস ফ্লো","Process flow")}<div class="flow" id="fl"></div>
+<div class="legend"><span style="--c:var(--ac)">${T("সেটআপ","Setup")}</span><span style="--c:var(--o)">${T("ডেটা","Data")}</span><span style="--c:var(--p)">${T("ট্রেনিং","Training")}</span><span style="--c:var(--g)">${T("যাচাই","Check")}</span></div>
+<div class="card" style="margin-top:14px"><p style="margin:0"><b>${T("সারসংক্ষেপ","In short")}:</b> ${T("ছবি → yolov8x দিয়ে বক্স + ফাইলের নাম দিয়ে ক্লাস → .txt লেবেল → ৮৫/১৫ ভাগ → yolov8n ট্রেনিং → best.pt → ডিটেকশন দেখা।","photos → boxes from yolov8x + class from filename → .txt labels → 85/15 split → yolov8n training → best.pt → view detections.")}</p></div></section>`;
+h+=`<section id="cells">${H(0,4,"সেল-বাই-সেল","Cell by cell")}`;
+C.forEach((c,k)=>{h+=`<div class="card step" id="c${k+1}" style="border-left-color:var(--${{s1:"ac",s2:"o",s3:"p",s4:"g"}[c[2]]})"><h3>Cell ${k+1} — ${T(c[0],c[1])}</h3><div class="io"><div class="i"><h4>${T("ইনপুট","Input")}</h4>${T(c[3][0],c[3][1])}</div><div class="o"><h4>${T("আউটপুট","Output")}</h4>${T(c[5][0],c[5][1])}</div></div><div class="pr"><b>${T("প্রসেস","Process")}:</b> ${T(c[4][0],c[4][1])}</div></div>`});
+h+=`<div class="card"><b>${T("লেবেল ফাইলের নমুনা (YOLO ফরম্যাট)","Sample label file (YOLO format)")}</b><p style="margin:8px 0"><code>0 0.512000 0.480000 0.620000 0.710000</code></p><p style="margin:0;color:var(--mu);font-size:14px">${T("class (0=cat, 1=dog), x-কেন্দ্র, y-কেন্দ্র, প্রস্থ, উচ্চতা (সব ০–১ স্কেলে)। প্রতি ছবিতে একটি বক্স।","class (0=cat, 1=dog), x-center, y-center, width, height (all 0–1). One box per image.")}</p></div></section>`;
+h+=`<section id="split">${H(0,5,"ডেটা ভাগ","Data split")}
+<p>${T("Cell 5 শেষে <code>/content/dog_cat</code> এর ভিতরে ডেটা এভাবে ভাগ হয়:","After Cell 5, the data inside <code>/content/dog_cat</code> is divided like this:")}</p>
+<div class="card"><b>train/images</b><div class="bar" style="margin:8px 0 14px"><div style="width:85%;background:var(--ac)">train 85% ${T("(ট্রেনিং)","(training)")}</div><div style="width:15%;background:var(--o)">valid 15%</div></div>
+<b>test/images</b><div class="bar" style="margin-top:8px"><div style="width:100%;background:var(--g)">test 100% ${T("(Cell 8 এ ডিটেকশন দেখতে)","(shown in Cell 8)")}</div></div></div>
+<p style="color:var(--mu);font-size:14px">${T("valid ট্রেনিংয়ের সময় যাচাইয়ে ব্যবহৃত হয়; test ছবি ট্রেনিং বা যাচাইয়ে যায় না।","valid is used for validation during training; test images are used for neither training nor validation.")}</p></section>`;
+h+=`<section id="outputs">${H(0,6,"আউটপুট ফাইল","Output files")}<div class="card scr"><table><tr><th>${T("ফাইল","File")}</th><th>${T("কোথায়","Where")}</th><th>${T("কী","What")}</th></tr>
+<tr><td><code>labels/*.txt</code></td><td>Drive: train/, test/</td><td>${T("প্রতি ছবির বক্স লেবেল","Box label per image")}</td></tr>
+<tr><td><code>data.yaml</code></td><td>/content/dog_cat/</td><td>${T("ডেটাসেট কনফিগ (পাথ, ক্লাস)","Dataset config (paths, classes)")}</td></tr>
+<tr><td><code>best.pt</code>, <code>last.pt</code></td><td>/content/runs/detect/dog_cat_detector*/weights/</td><td>${T("ট্রেন করা মডেল","Trained model")}</td></tr>
+<tr><td><code>results.png</code>, confusion matrix</td><td>/content/runs/detect/dog_cat_detector*/</td><td>${T("ট্রেনিং কার্ভ ও ফলাফল","Training curves and results")}</td></tr>
+<tr><td><code>best.pt</code> (${T("ব্যাকআপ","backup")})</td><td>/content/drive/MyDrive/</td><td>${T("Colab রিসেট হলেও থাকে","Survives a Colab reset")}</td></tr></table></div></section>`;
+h+=`<section id="trouble">${H(0,7,"সমস্যা সমাধান","Troubleshooting")}
+<div class="card"><b>No trained weights found</b><p style="margin:6px 0 0">${T("Cell 6 শেষ হয়নি। Cell 4, 5, 6 আবার চালান এবং <code>Results saved to …</code> না আসা পর্যন্ত অপেক্ষা করুন।","Cell 6 did not finish. Re-run Cells 4, 5, 6 and wait for <code>Results saved to …</code>.")}</p></div>
+<div class="card"><b>train labels: 0</b><p style="margin:6px 0 0">${T("<code>BASE</code> পাথ, ছবির এক্সটেনশন ও ফাইলের নাম (cat/dog) দেখুন; ছবিতে কুকুর বা বিড়াল শনাক্ত না হলেও লেবেল তৈরি হয় না।","Check the <code>BASE</code> path, image extensions and filenames (cat/dog); images where no dog or cat is detected also get no label.")}</p></div>
+<div class="card"><b>CUDA out of memory</b><p style="margin:6px 0 0">${T("Cell 6 এ <code>batch</code> কমিয়ে 4 করুন, অথবা <code>imgsz</code> কমান। রানটাইম GPU (T4) কিনা দেখুন।","Lower <code>batch</code> to 4 in Cell 6, or reduce <code>imgsz</code>. Make sure the runtime is a GPU (T4).")}</p></div>
+<div class="card ok"><b>${T("মনে রাখুন","Good to know")}</b><ul><li>${T("লেবেল স্বয়ংক্রিয় তাই ভুল নাম মানে ভুল ক্লাস।","Labels are automatic, so a wrong filename means a wrong class.")}</li><li>${T("Colab রিসেট হলে <code>/content</code> মুছে যায়; Drive এর <code>best.pt</code> ও লেবেল থেকে যায়।","A Colab reset wipes <code>/content</code>; the Drive <code>best.pt</code> and labels stay.")}</li></ul></div></section>`;
+document.getElementById("app").innerHTML=h;
+document.getElementById("fl").innerHTML=C.map((c,k)=>`<a class="node ${c[2]}" href="#c${k+1}"><b>Cell ${k+1}</b>${T(c[0],c[1])}</a>`).join("");
+document.getElementById("nav").innerHTML=S.map((s,k)=>`<a href="#${s[0]}" data-s="${s[0]}"><b>${k+1}</b>${T(s[1],s[2])}</a>`).join("");
+const side=document.getElementById("side"),ov=document.getElementById("ov");
+function tog(o){side.classList.toggle("open",o);ov.classList.toggle("show",o)}
+document.getElementById("bg").onclick=()=>tog(!side.classList.contains("open"));
+ov.onclick=()=>tog(false);
+side.querySelectorAll("a").forEach(a=>a.onclick=()=>tog(false));
+function setLang(l){document.body.className=l;document.documentElement.lang=l;document.querySelectorAll(".lang button").forEach(b=>b.classList.toggle("on",b.dataset.l===l));try{localStorage.setItem("lang",l)}catch(e){}}
+document.querySelectorAll(".lang button").forEach(b=>b.onclick=()=>setLang(b.dataset.l));
+try{const v=localStorage.getItem("lang");if(v==="en"||v==="bn")setLang(v)}catch(e){}
+function spy(){let cur=S[0][0];S.forEach(s=>{const e=document.getElementById(s[0]);if(e&&e.getBoundingClientRect().top<140)cur=s[0]});document.querySelectorAll("#nav a").forEach(a=>a.classList.toggle("on",a.dataset.s===cur))}
+addEventListener("scroll",spy,{passive:true});spy();
+</script>
+</body>
+</html>
